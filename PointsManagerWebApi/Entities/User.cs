@@ -17,14 +17,16 @@ namespace PointsManagerWebApi.Entities
         /// Initializes a new User object. 
         /// </summary>
         /// <param name="transactionList">Desired transaction list to use, creates an empty list if null.</param>
-        public User(List<PointsTransaction> transactionList = null)
+        public User(IEnumerable<PointsTransaction> transactionList = null)
         {
             if(transactionList == null)
             {
-                transactionList = new List<PointsTransaction>();
+                TransactionList = new List<PointsTransaction>();
             }
-
-            TransactionList = transactionList;
+            else
+            {
+                TransactionList = new List<PointsTransaction>(transactionList);
+            }
         }
 
         /// <summary>
