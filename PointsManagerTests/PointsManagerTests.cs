@@ -27,7 +27,7 @@ namespace PointsManagerTests
             [ValueSource("DateTimeCases")] DateTime timestamp)
         {
             User user = new User();
-            PointsTransaction expected = new PointsTransaction
+            AddPointsRequest expected = new AddPointsRequest
             {
                 Payer = payer,
                 Points = points,
@@ -35,7 +35,7 @@ namespace PointsManagerTests
             };
 
             user.AddTransaction(expected);
-            PointsTransaction actual = user.TransactionList[0];
+            AddPointsRequest actual = user.RawTransactionList[0];
 
             Assert.AreEqual(expected, actual);
         }

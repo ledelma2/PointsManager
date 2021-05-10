@@ -11,38 +11,38 @@ namespace PointsManagerWebApi.Entities
     /// </summary>
     public class User
     {
-        public List<PointsTransaction> TransactionList { get; private set; }
+        public List<AddPointsRequest> RawTransactionList { get; private set; }
 
         /// <summary>
-        /// Initializes a new User object. 
+        /// Initializes a new User object.
         /// </summary>
         /// <param name="transactionList">Desired transaction list to use, creates an empty list if null.</param>
-        public User(IEnumerable<PointsTransaction> transactionList = null)
+        public User(IEnumerable<AddPointsRequest> transactionList = null)
         {
             if(transactionList == null)
             {
-                TransactionList = new List<PointsTransaction>();
+                RawTransactionList = new List<AddPointsRequest>();
             }
             else
             {
-                TransactionList = new List<PointsTransaction>(transactionList);
+                RawTransactionList = new List<AddPointsRequest>(transactionList);
             }
         }
 
         /// <summary>
         /// Adds a transaction to the user's history.
         /// </summary>
-        /// <param name="transaction">Transaction to be added.</param>
-        public void AddTransaction(PointsTransaction transaction)
+        /// <param name="addPointsRequest">Transaction to be added.</param>
+        public void AddTransaction(AddPointsRequest addPointsRequest)
         {
-            TransactionList.Add(transaction);
+            RawTransactionList.Add(addPointsRequest);
         }
 
         /// <summary>
-        /// Spends the user's points.
+        /// Spends the user's points and updates the transaction list for each spend request.
         /// </summary>
         /// <returns>JArray of JObjects which contain the payer and amount of points used.</returns>
-        public JArray SpendPoints()
+        public JArray SpendPoints(SpendRequest spendRequest)
         {
             return new JArray();
         }
@@ -53,7 +53,29 @@ namespace PointsManagerWebApi.Entities
         /// <returns>JObject containing the payer name and associated point balance.</returns>
         public JObject GetAllPayersPointBalance()
         {
-            return new JObject();
+            JObject response = new JObject();
+            Dictionary<string, int> payerPointBalances = new Dictionary<string, int>();
+
+            foreach(AddPointsRequest request in RawTransactionList)
+            {
+                string payer = request.Payer;
+                int points = request.Points;
+                if(payerPointBalances.ContainsKey(payer))
+                {
+                    payerPointBalances[payer] += points;
+                }
+                else
+                {
+                    payerPointBalances.Add(payer, points);
+                }
+            }
+
+            foreach(string key in payerPointBalances.Keys)
+            {
+                response.Add(new JProperty(key, payerPointBalances[key]));
+            }
+
+            return response;
         }
     }
 }
