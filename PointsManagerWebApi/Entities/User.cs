@@ -11,13 +11,13 @@ namespace PointsManagerWebApi.Entities
     /// </summary>
     public class User
     {
-        public IEnumerable<PointsTransaction> TransactionList { get; private set; }
+        public List<PointsTransaction> TransactionList { get; private set; }
 
         /// <summary>
         /// Initializes a new User object. 
         /// </summary>
         /// <param name="transactionList">Desired transaction list to use, creates an empty list if null.</param>
-        public User(IEnumerable<PointsTransaction> transactionList = null)
+        public User(List<PointsTransaction> transactionList = null)
         {
             if(transactionList == null)
             {
@@ -33,7 +33,7 @@ namespace PointsManagerWebApi.Entities
         /// <param name="transaction">Transaction to be added.</param>
         public void AddTransaction(PointsTransaction transaction)
         {
-            TransactionList.Append(transaction);
+            TransactionList.Add(transaction);
         }
 
         /// <summary>
