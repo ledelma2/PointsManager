@@ -20,7 +20,7 @@ namespace PointsManagerTests
         {
         }
 
-        [Test]
+        [Test, Category("Setters")]
         public void AddTransaction_UserTransactionListEmpty_TransactionIsAddedToList(
             [Values(null, "", "FakeCompany", "FakeCompany with punctuation 'L.L.C.")] string payer,
             [Range(-10, 10, 1)] int points,
