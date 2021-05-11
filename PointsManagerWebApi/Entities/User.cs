@@ -131,7 +131,7 @@ namespace PointsManagerWebApi.Entities
         /// </summary>
         /// <param name="orderedTransactions">Ordered list of transactions.</param>
         /// <param name="indexOfSpendRequest">Index of the particular spend request.</param>
-        public void DistributeSpendRequestPoints(IEnumerable<AddPointsRequest> orderedTransactions, Dictionary<string, List<int>> payerPointAdditions, int indexOfSpendRequest)
+        private void DistributeSpendRequestPoints(IEnumerable<AddPointsRequest> orderedTransactions, Dictionary<string, List<int>> payerPointAdditions, int indexOfSpendRequest)
         {
             List<AddPointsRequest> orderedTransactionsList = new List<AddPointsRequest>(orderedTransactions);
             AddPointsRequest spendRequest = orderedTransactionsList[indexOfSpendRequest];
