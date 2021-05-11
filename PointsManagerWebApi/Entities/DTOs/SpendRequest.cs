@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace PointsManagerWebApi.Entities
+namespace PointsManagerWebApi.Entities.DTOs
 {
     /// <summary>
     /// DTO Used to store and organize a spend request json.
     /// </summary>
     public class SpendRequest
     {
-        public int Points { get; private set; }
+        public int Points { get; set; }
     }
 }
