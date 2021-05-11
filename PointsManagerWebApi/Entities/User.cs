@@ -87,7 +87,7 @@ namespace PointsManagerWebApi.Entities
 
         /// <summary>
         /// Creates the clean transaction list, i.e. orders the raw transaction list by timestamp
-        /// and eliminates all requests with negative point values.
+        /// and distributes the point values from all spend requests.
         /// </summary>
         public void CreateCleanTransactionListFromRaw()
         {
@@ -129,8 +129,9 @@ namespace PointsManagerWebApi.Entities
         /// <summary>
         /// Distrubutes the spend request points to remove the negative point value from the specific transaction and replaces it with 0.
         /// </summary>
-        /// <param name="orderedTransactions">Ordered list of transactions.</param>
-        /// <param name="indexOfSpendRequest">Index of the particular spend request.</param>
+        /// <param name="orderedTransactions">Collection of the ordered transactions.</param>
+        /// <param name="payerPointAdditions">Dictionary of containing all positive point addition indexs located in orderedTransactions, indexed on payer name.</param>
+        /// <param name="indexOfSpendRequest">Index of the current spend request.</param>
         private void DistributeSpendRequestPoints(IEnumerable<AddPointsRequest> orderedTransactions, Dictionary<string, List<int>> payerPointAdditions, int indexOfSpendRequest)
         {
             List<AddPointsRequest> orderedTransactionsList = new List<AddPointsRequest>(orderedTransactions);
@@ -158,7 +159,7 @@ namespace PointsManagerWebApi.Entities
                         spendRequest.Points = 0;
                     }
 
-                    orderedTransactionsList[payerPointAdditions[spendRequest.Payer][index]] = currentPayerAddPointsRequest;
+                    orderedTransactionsList[index] = currentPayerAddPointsRequest;
                 }
             }
 

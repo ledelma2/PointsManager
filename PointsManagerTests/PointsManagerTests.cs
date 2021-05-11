@@ -60,6 +60,59 @@ namespace PointsManagerTests
             }
         };
 
+        private static AddPointsRequest[] AddPointsRequestCaseWithMultipleSpends = new AddPointsRequest[]
+        {
+            new AddPointsRequest
+            {
+                Payer = "DANNON",
+                Points = -100,
+                TimeStamp = DateTime.Parse("2020-10-31T16:00:00Z")
+            },
+            new AddPointsRequest
+            {
+                Payer = "DANNON",
+                Points = 1000,
+                TimeStamp = DateTime.Parse("2020-11-02T14:00:00Z")
+            },
+            new AddPointsRequest
+            {
+                Payer = "UNILEVER",
+                Points = 200,
+                TimeStamp = DateTime.Parse("2020-10-31T11:00:00Z")
+            },
+            new AddPointsRequest
+            {
+                Payer = "DANNON",
+                Points = -500,
+                TimeStamp = DateTime.Parse("2020-10-31T15:00:00Z")
+            },
+            new AddPointsRequest
+            {
+                Payer = "MILLER COORS",
+                Points = 10000,
+                TimeStamp = DateTime.Parse("2020-11-01T14:00:00Z")
+            },
+            new AddPointsRequest
+            {
+                Payer = "DANNON",
+                Points = 300,
+                TimeStamp = DateTime.Parse("2020-10-31T10:00:00Z")
+            },
+            new AddPointsRequest
+            {
+                Payer = "DANNON",
+                Points = 300,
+                TimeStamp = DateTime.Parse("2020-10-31T09:00:00Z")
+            },
+            new AddPointsRequest
+            {
+                Payer = "MILLER COORS",
+                Points = -600,
+                TimeStamp = DateTime.Parse("2020-11-03T14:00:00Z")
+            }
+        };
+
+
         private static AddPointsRequest[] OverspendPointsRequestCase = new AddPointsRequest[]
         {
             new AddPointsRequest
@@ -100,7 +153,7 @@ namespace PointsManagerTests
             }
         };
 
-        private List<AddPointsRequest> ExpectedCleanTransactionList = new List<AddPointsRequest>
+        private List<AddPointsRequest> ExpectedSingleSpendCleanTransactionList = new List<AddPointsRequest>
         {
             new AddPointsRequest
             {
@@ -137,6 +190,58 @@ namespace PointsManagerTests
                 Payer = "DANNON",
                 Points = 1000,
                 TimeStamp = DateTime.Parse("2020-11-02T14:00:00Z")
+            }
+        };
+
+        private List<AddPointsRequest> ExpectedMultiSpendCleanTransactionList = new List<AddPointsRequest>
+        {
+            new AddPointsRequest
+            {
+                Payer = "DANNON",
+                Points = 0,
+                TimeStamp = DateTime.Parse("2020-10-31T09:00:00Z")
+            },
+            new AddPointsRequest
+            {
+                Payer = "DANNON",
+                Points = 0,
+                TimeStamp = DateTime.Parse("2020-10-31T10:00:00Z")
+            },
+            new AddPointsRequest
+            {
+                Payer = "UNILEVER",
+                Points = 200,
+                TimeStamp = DateTime.Parse("2020-10-31T11:00:00Z")
+            },
+            new AddPointsRequest
+            {
+                Payer = "DANNON",
+                Points = 0,
+                TimeStamp = DateTime.Parse("2020-10-31T15:00:00Z")
+            },
+            new AddPointsRequest
+            {
+                Payer = "DANNON",
+                Points = 0,
+                TimeStamp = DateTime.Parse("2020-10-31T16:00:00Z")
+            },
+            new AddPointsRequest
+            {
+                Payer = "MILLER COORS",
+                Points = 9400,
+                TimeStamp = DateTime.Parse("2020-11-01T14:00:00Z")
+            },
+            new AddPointsRequest
+            {
+                Payer = "DANNON",
+                Points = 1000,
+                TimeStamp = DateTime.Parse("2020-11-02T14:00:00Z")
+            },
+            new AddPointsRequest
+            {
+                Payer = "MILLER COORS",
+                Points = 0,
+                TimeStamp = DateTime.Parse("2020-11-03T14:00:00Z")
             }
         };
 
@@ -185,7 +290,6 @@ namespace PointsManagerTests
             Assert.AreEqual(expectedRequest, actualRequest);
         }
 
-
         [Test, Category("Getters")]
         public void GetAllPayersPointBalance_AddPointsRequestCases_ReportsAccurateBalance()
         {
@@ -213,19 +317,36 @@ namespace PointsManagerTests
         }
 
         [Test, Category("Modifiers")]
-        public void CreateCleanTransactionListFromRaw_AddPointsRequestCases_CreatesACleanTransactionList()
+        public void CreateCleanTransactionListFromRaw_AddPointsRequestCase_CreatesACleanTransactionList()
         {
             user = new User(AddPointsRequestCase);
 
             user.CreateCleanTransactionListFromRaw();
 
-            Assert.AreEqual(ExpectedCleanTransactionList.Count, user.CleanTransactionList.Count);
+            Assert.AreEqual(ExpectedSingleSpendCleanTransactionList.Count, user.CleanTransactionList.Count);
 
-            for(int i = 0; i < ExpectedCleanTransactionList.Count; i++)
+            for(int i = 0; i < ExpectedSingleSpendCleanTransactionList.Count; i++)
             {
-                Assert.AreEqual(ExpectedCleanTransactionList[i].Payer, user.CleanTransactionList[i].Payer);
-                Assert.AreEqual(ExpectedCleanTransactionList[i].Points, user.CleanTransactionList[i].Points);
-                Assert.AreEqual(ExpectedCleanTransactionList[i].TimeStamp, user.CleanTransactionList[i].TimeStamp);
+                Assert.AreEqual(ExpectedSingleSpendCleanTransactionList[i].Payer, user.CleanTransactionList[i].Payer);
+                Assert.AreEqual(ExpectedSingleSpendCleanTransactionList[i].Points, user.CleanTransactionList[i].Points);
+                Assert.AreEqual(ExpectedSingleSpendCleanTransactionList[i].TimeStamp, user.CleanTransactionList[i].TimeStamp);
+            }
+        }
+
+        [Test, Category("Modifiers")]
+        public void CreateCleanTransactionListFromRaw_AddPointsRequestCaseWithMultipleSpends_CreatesACleanTransactionList()
+        {
+            user = new User(AddPointsRequestCaseWithMultipleSpends);
+
+            user.CreateCleanTransactionListFromRaw();
+
+            Assert.AreEqual(ExpectedMultiSpendCleanTransactionList.Count, user.CleanTransactionList.Count);
+
+            for (int i = 0; i < ExpectedMultiSpendCleanTransactionList.Count; i++)
+            {
+                Assert.AreEqual(ExpectedMultiSpendCleanTransactionList[i].Payer, user.CleanTransactionList[i].Payer);
+                Assert.AreEqual(ExpectedMultiSpendCleanTransactionList[i].Points, user.CleanTransactionList[i].Points);
+                Assert.AreEqual(ExpectedMultiSpendCleanTransactionList[i].TimeStamp, user.CleanTransactionList[i].TimeStamp);
             }
         }
 
