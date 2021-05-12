@@ -353,16 +353,63 @@ namespace PointsManagerTests
         }
 
         [Test]
-        public void RedeemPoints_AddPointsRequestCase_RedeemsPoints()
+        public void RedeemPoints_AddPointsRequestCase_RedeemsPoints(
+            [Range(100, 5000, 100)] int pointsToRedeem)
         {
             user = new User(AddPointsRequestCase);
+
+            SpendRequest request = new SpendRequest
+            {
+                Points = pointsToRedeem
+            };
+
+            JArray response = user.RedeemPoints(request);
+            List<AddPointsRequest> currentCleanList = new List<AddPointsRequest>(user.CleanTransactionList);
+            user.CreateCleanTransactionListFromRaw();
+            List<AddPointsRequest> nextCleanList = new List<AddPointsRequest>(user.CleanTransactionList);
+
+            bool spentPoints = currentCleanList[0].Points > nextCleanList[0].Points;
+            spentPoints = spentPoints || currentCleanList[0].TimeStamp < nextCleanList[0].TimeStamp;
+
+            Assert.That(spentPoints);
+
+            int sum = 0;
+            foreach(JObject payer in response)
+            {
+                sum += (int)payer.SelectToken(".points");
+            }
+
+            Assert.AreEqual(pointsToRedeem, sum * -1);
         }
 
         [Test]
-        public void RedeemPoints_AddPointsRequestCaseWithMultipleSpends_RedeemsPoints()
+        public void RedeemPoints_AddPointsRequestCaseWithMultipleSpends_RedeemsPoints(
+            [Range(100, 5000, 100)] int pointsToRedeem)
         {
             user = new User(AddPointsRequestCaseWithMultipleSpends);
 
+            SpendRequest request = new SpendRequest
+            {
+                Points = pointsToRedeem
+            };
+
+            JArray response = user.RedeemPoints(request);
+            List<AddPointsRequest> currentCleanList = new List<AddPointsRequest>(user.CleanTransactionList);
+            user.CreateCleanTransactionListFromRaw();
+            List<AddPointsRequest> nextCleanList = new List<AddPointsRequest>(user.CleanTransactionList);
+
+            bool spentPoints = currentCleanList[0].Points > nextCleanList[0].Points;
+            spentPoints = spentPoints || currentCleanList[0].TimeStamp < nextCleanList[0].TimeStamp;
+
+            Assert.That(spentPoints);
+
+            int sum = 0;
+            foreach (JObject payer in response)
+            {
+                sum += (int)payer.SelectToken(".points");
+            }
+
+            Assert.AreEqual(pointsToRedeem, sum * -1);
         }
     }
 }

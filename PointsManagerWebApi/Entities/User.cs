@@ -75,7 +75,7 @@ namespace PointsManagerWebApi.Entities
                 {
                     Payer = key,
                     Points = payerPointRedemptions[key] * -1,
-                    TimeStamp = DateTime.Now
+                    TimeStamp = DateTime.UtcNow
                 };
 
                 AddTransaction(spendPointsRequest);
@@ -203,9 +203,10 @@ namespace PointsManagerWebApi.Entities
         /// </summary>
         /// <param name="pointsToSpend">Amount of points to redeem.</param>
         /// <returns></returns>
-        private Dictionary<string, int> CreateRedeemPointsDictionary(int pointsToSpend)
+        private Dictionary<string, int> CreateRedeemPointsDictionary(int pointsToRedeem)
         {
             Dictionary<string, int> payerPointRedemptions = new Dictionary<string, int>();
+            int pointsToSpend = pointsToRedeem;
 
             foreach (AddPointsRequest addPointsRequest in CleanTransactionList)
             {
@@ -225,6 +226,7 @@ namespace PointsManagerWebApi.Entities
                 }
                 else
                 {
+                    Console.WriteLine("Spent all points!");
                     payerPointRedemptions[addPointsRequest.Payer] += pointsToSpend;
                     pointsToSpend = 0;
                     break;
