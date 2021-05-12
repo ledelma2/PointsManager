@@ -158,12 +158,6 @@ namespace PointsManagerTests
             new AddPointsRequest
             {
                 Payer = "DANNON",
-                Points = 0,
-                TimeStamp = DateTime.Parse("2020-10-31T09:00:00Z")
-            },
-            new AddPointsRequest
-            {
-                Payer = "DANNON",
                 Points = 100,
                 TimeStamp = DateTime.Parse("2020-10-31T10:00:00Z")
             },
@@ -172,12 +166,6 @@ namespace PointsManagerTests
                 Payer = "UNILEVER",
                 Points = 200,
                 TimeStamp = DateTime.Parse("2020-10-31T11:00:00Z")
-            },
-            new AddPointsRequest
-            {
-                Payer = "DANNON",
-                Points = 0,
-                TimeStamp = DateTime.Parse("2020-10-31T15:00:00Z")
             },
             new AddPointsRequest
             {
@@ -197,33 +185,9 @@ namespace PointsManagerTests
         {
             new AddPointsRequest
             {
-                Payer = "DANNON",
-                Points = 0,
-                TimeStamp = DateTime.Parse("2020-10-31T09:00:00Z")
-            },
-            new AddPointsRequest
-            {
-                Payer = "DANNON",
-                Points = 0,
-                TimeStamp = DateTime.Parse("2020-10-31T10:00:00Z")
-            },
-            new AddPointsRequest
-            {
                 Payer = "UNILEVER",
                 Points = 200,
                 TimeStamp = DateTime.Parse("2020-10-31T11:00:00Z")
-            },
-            new AddPointsRequest
-            {
-                Payer = "DANNON",
-                Points = 0,
-                TimeStamp = DateTime.Parse("2020-10-31T15:00:00Z")
-            },
-            new AddPointsRequest
-            {
-                Payer = "DANNON",
-                Points = 0,
-                TimeStamp = DateTime.Parse("2020-10-31T16:00:00Z")
             },
             new AddPointsRequest
             {
@@ -236,12 +200,6 @@ namespace PointsManagerTests
                 Payer = "DANNON",
                 Points = 1000,
                 TimeStamp = DateTime.Parse("2020-11-02T14:00:00Z")
-            },
-            new AddPointsRequest
-            {
-                Payer = "MILLER COORS",
-                Points = 0,
-                TimeStamp = DateTime.Parse("2020-11-03T14:00:00Z")
             }
         };
 
@@ -251,7 +209,7 @@ namespace PointsManagerTests
             user = new User();
         }
 
-        [Test, Category("Setters")]
+        [Test]
         public void AddTransaction_UserTransactionListEmpty_TransactionIsAddedToList(
             [Values(null, "", "FakeCompany", "FakeCompany with punctuation 'L.L.C.")] string payer,
             [Range(-10, 10, 1)] int points,
@@ -270,7 +228,7 @@ namespace PointsManagerTests
             Assert.AreEqual(expectedRequest, actualRequest);
         }
 
-        [Test, Category("Setters")]
+        [Test]
         public void AddTransaction_UserTransactionListPopulated_TransactionIsAddedToList(
             [Values(null, "", "FakeCompany", "FakeCompany with punctuation 'L.L.C.")] string payer,
             [Range(-10, 10, 1)] int points,
@@ -290,7 +248,7 @@ namespace PointsManagerTests
             Assert.AreEqual(expectedRequest, actualRequest);
         }
 
-        [Test, Category("Getters")]
+        [Test]
         public void GetAllPayersPointBalance_AddPointsRequestCases_ReportsAccurateBalance()
         {
             user = new User(AddPointsRequestCase);
@@ -306,7 +264,7 @@ namespace PointsManagerTests
             Assert.AreEqual(expectedBalances, actualBalances);
         }
 
-        [Test, Category("Getters")]
+        [Test]
         public void GetAllPayersPointBalance_NoRequests_ReportsNoBalances()
         {
             JObject actualBalances = user.GetAllPayersPointBalance();
@@ -316,7 +274,7 @@ namespace PointsManagerTests
             Assert.AreEqual(expectedBalances, actualBalances);
         }
 
-        [Test, Category("Modifiers")]
+        [Test]
         public void CreateCleanTransactionListFromRaw_AddPointsRequestCase_CreatesACleanTransactionList()
         {
             user = new User(AddPointsRequestCase);
@@ -333,7 +291,7 @@ namespace PointsManagerTests
             }
         }
 
-        [Test, Category("Modifiers")]
+        [Test]
         public void CreateCleanTransactionListFromRaw_AddPointsRequestCaseWithMultipleSpends_CreatesACleanTransactionList()
         {
             user = new User(AddPointsRequestCaseWithMultipleSpends);
@@ -350,7 +308,7 @@ namespace PointsManagerTests
             }
         }
 
-        [Test, Category("Modifiers")]
+        [Test]
         public void CreateCleanTransactionListFromRaw_NoRequests_DoesNothing()
         {
             user.CreateCleanTransactionListFromRaw();
@@ -358,7 +316,7 @@ namespace PointsManagerTests
             Assert.AreEqual(user.RawTransactionList, user.CleanTransactionList);
         }
 
-        [Test, Category("Modifiers")]
+        [Test]
         public void CreateCleanTransactionListFromRaw_FirstRequestIsASpend_ThrowsNegativeBalanceException(
             [Range(-1000, -1, 1)] int points)
         {
@@ -374,12 +332,37 @@ namespace PointsManagerTests
             Assert.Throws<NegativeBalanceException>(user.CreateCleanTransactionListFromRaw);
         }
 
-        [Test, Category("Modifiers")]
+        [Test]
         public void CreateCleanTransactionListFromRaw_NthRequestIsOverspend_ThrowsNegativeBalanceException()
         {
             user = new User(OverspendPointsRequestCase);
 
             Assert.Throws<NegativeBalanceException>(user.CreateCleanTransactionListFromRaw);
+        }
+
+        [Test]
+        public void RedeemPoints_InvalidPointRedemptionRequest_ThrowsInvalidPointRedemptionRequestException(
+            [Range(-1000, -1, 1)] int pointsToRedeem)
+        {
+            SpendRequest request = new SpendRequest
+            {
+                Points = pointsToRedeem
+            };
+
+            Assert.Throws<InvalidPointRedemptionRequestException>(() => user.RedeemPoints(request));
+        }
+
+        [Test]
+        public void RedeemPoints_AddPointsRequestCase_RedeemsPoints()
+        {
+            user = new User(AddPointsRequestCase);
+        }
+
+        [Test]
+        public void RedeemPoints_AddPointsRequestCaseWithMultipleSpends_RedeemsPoints()
+        {
+            user = new User(AddPointsRequestCaseWithMultipleSpends);
+
         }
     }
 }

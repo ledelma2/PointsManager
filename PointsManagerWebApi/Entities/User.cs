@@ -51,7 +51,37 @@ namespace PointsManagerWebApi.Entities
         /// <returns>JArray of JObjects which contain the payer and amount of points used.</returns>
         public JArray RedeemPoints(SpendRequest spendRequest)
         {
-            return new JArray();
+            JArray response = new JArray();
+            int pointsToSpend = spendRequest.Points;
+
+            if(pointsToSpend < 0)
+            {
+                throw new InvalidPointRedemptionRequestException("Cannot redeem negative points");
+            }
+
+            CreateCleanTransactionListFromRaw();
+
+            Dictionary<string, int> payerPointRedemptions = CreateRedeemPointsDictionary(pointsToSpend);
+
+            foreach (string key in payerPointRedemptions.Keys)
+            {
+                response.Add(new JObject
+                {
+                    new JProperty("payer", key),
+                    new JProperty("points", payerPointRedemptions[key] * -1)
+                });
+
+                AddPointsRequest spendPointsRequest = new AddPointsRequest
+                {
+                    Payer = key,
+                    Points = payerPointRedemptions[key] * -1,
+                    TimeStamp = DateTime.Now
+                };
+
+                AddTransaction(spendPointsRequest);
+            }
+
+            return response;
         }
 
         /// <summary>
@@ -112,17 +142,17 @@ namespace PointsManagerWebApi.Entities
                 {
                     if (points < 0)
                     {
-                        //spend request
                         DistributeSpendRequestPoints(orderedTransactionList, payerPointAdditions, i);
                     }
                     else
                     {
-                        //add request
                         payerPointAdditions[payer].Add(i);
                     }
                 }
             }
 
+
+            orderedTransactionList.RemoveAll(requests => requests.Points == 0);
             CleanTransactionList = orderedTransactionList;
         }
 
@@ -144,18 +174,15 @@ namespace PointsManagerWebApi.Entities
 
                 if (currentPayerAddPointsRequest.Points > 0)
                 {
-                    //There are available points to spend on this request
                     currentPayerAddPointsRequest.Points -= pointsToSpend;
 
                     if(currentPayerAddPointsRequest.Points < 0)
                     {
-                        //Have more points to spend on the next transaction, so distrubute max on current request and set in ordered tx list
                         pointsToSpend = currentPayerAddPointsRequest.Points * -1;
                         currentPayerAddPointsRequest.Points = 0;
                     }
                     else
                     {
-                        //We have spent all points on the spend request, set spend request points to 0 and update ordered tx list
                         spendRequest.Points = 0;
                     }
 
@@ -165,11 +192,51 @@ namespace PointsManagerWebApi.Entities
 
             if(spendRequest.Points != 0)
             {
-                //Went through all prior balances, but we still have points to distrubute which means a negative balance has occured
                 throw new NegativeBalanceException($"Negative balance for Payer: {spendRequest.Payer}");
             }
 
             orderedTransactionsList[indexOfSpendRequest] = spendRequest;
+        }
+
+        /// <summary>
+        /// Creates a dictionary of payer and points redeemed.
+        /// </summary>
+        /// <param name="pointsToSpend">Amount of points to redeem.</param>
+        /// <returns></returns>
+        private Dictionary<string, int> CreateRedeemPointsDictionary(int pointsToSpend)
+        {
+            Dictionary<string, int> payerPointRedemptions = new Dictionary<string, int>();
+
+            foreach (AddPointsRequest addPointsRequest in CleanTransactionList)
+            {
+                int currentRequestPoints = addPointsRequest.Points;
+
+                if (!payerPointRedemptions.ContainsKey(addPointsRequest.Payer))
+                {
+                    payerPointRedemptions.Add(addPointsRequest.Payer, 0);
+                }
+
+                currentRequestPoints -= pointsToSpend;
+
+                if (currentRequestPoints < 0)
+                {
+                    pointsToSpend = currentRequestPoints * -1;
+                    payerPointRedemptions[addPointsRequest.Payer] += addPointsRequest.Points;
+                }
+                else
+                {
+                    payerPointRedemptions[addPointsRequest.Payer] += pointsToSpend;
+                    pointsToSpend = 0;
+                    break;
+                }
+            }
+
+            if(pointsToSpend != 0)
+            {
+                throw new NegativeBalanceException($"Insufficient balance to spend {pointsToSpend} points");
+            }    
+
+            return payerPointRedemptions;
         }
     }
 }
