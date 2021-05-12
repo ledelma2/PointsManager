@@ -151,7 +151,6 @@ namespace PointsManagerWebApi.Entities
                 }
             }
 
-
             orderedTransactionList.RemoveAll(requests => requests.Points == 0);
             CleanTransactionList = orderedTransactionList;
         }

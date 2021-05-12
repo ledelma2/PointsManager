@@ -20,7 +20,7 @@ namespace PointsManagerTests
             DateTime.MaxValue
         };
 
-        private static AddPointsRequest[] AddPointsRequestCase = new AddPointsRequest[]
+        private AddPointsRequest[] AddPointsRequestCase = new AddPointsRequest[]
         {
             new AddPointsRequest
             {
@@ -60,7 +60,7 @@ namespace PointsManagerTests
             }
         };
 
-        private static AddPointsRequest[] AddPointsRequestCaseWithMultipleSpends = new AddPointsRequest[]
+        private AddPointsRequest[] AddPointsRequestCaseWithMultipleSpends = new AddPointsRequest[]
         {
             new AddPointsRequest
             {
@@ -109,11 +109,17 @@ namespace PointsManagerTests
                 Payer = "MILLER COORS",
                 Points = -600,
                 TimeStamp = DateTime.Parse("2020-11-03T14:00:00Z")
+            },
+            new AddPointsRequest
+            {
+                Payer = "UNILEVER",
+                Points = -100,
+                TimeStamp = DateTime.UtcNow
             }
         };
 
 
-        private static AddPointsRequest[] OverspendPointsRequestCase = new AddPointsRequest[]
+        private AddPointsRequest[] OverspendPointsRequestCase = new AddPointsRequest[]
         {
             new AddPointsRequest
             {
@@ -186,7 +192,7 @@ namespace PointsManagerTests
             new AddPointsRequest
             {
                 Payer = "UNILEVER",
-                Points = 200,
+                Points = 100,
                 TimeStamp = DateTime.Parse("2020-10-31T11:00:00Z")
             },
             new AddPointsRequest
@@ -369,7 +375,9 @@ namespace PointsManagerTests
             List<AddPointsRequest> nextCleanList = new List<AddPointsRequest>(user.CleanTransactionList);
 
             bool spentPoints = currentCleanList[0].Points > nextCleanList[0].Points;
+            Console.WriteLine(currentCleanList[0].Points + "," + nextCleanList[0].Points);
             spentPoints = spentPoints || currentCleanList[0].TimeStamp < nextCleanList[0].TimeStamp;
+            Console.WriteLine(currentCleanList[0].TimeStamp + "," + nextCleanList[0].TimeStamp);
 
             Assert.That(spentPoints);
 
@@ -399,7 +407,9 @@ namespace PointsManagerTests
             List<AddPointsRequest> nextCleanList = new List<AddPointsRequest>(user.CleanTransactionList);
 
             bool spentPoints = currentCleanList[0].Points > nextCleanList[0].Points;
+            Console.WriteLine(currentCleanList[0].Points + "," + nextCleanList[0].Points);
             spentPoints = spentPoints || currentCleanList[0].TimeStamp < nextCleanList[0].TimeStamp;
+            Console.WriteLine(currentCleanList[0].TimeStamp + "," + nextCleanList[0].TimeStamp);
 
             Assert.That(spentPoints);
 
