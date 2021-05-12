@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace PointsManagerWebApi.Entities.DTOs
+namespace PointsManagerWebApi.Entities.Models
 {
     /// <summary>
     /// DTO Used to store and organize a spend request json.

@@ -1,5 +1,5 @@
 ﻿using Newtonsoft.Json.Linq;
-using PointsManagerWebApi.Entities.DTOs;
+using PointsManagerWebApi.Entities.Models;
 using PointsManagerWebApi.Exceptions;
 using System;
 using System.Collections.Generic;

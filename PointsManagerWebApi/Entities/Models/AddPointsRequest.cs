@@ -1,7 +1,7 @@
 using Newtonsoft.Json;
 using System;
 
-namespace PointsManagerWebApi.Entities.DTOs
+namespace PointsManagerWebApi.Entities.Models
 {
     /// <summary>
     /// DTO Used to store and organize an add points request json.
