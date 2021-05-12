@@ -4,6 +4,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using PointsManagerWebApi.Entities;
 using PointsManagerWebApi.Entities.Models;
+using PointsManagerWebApi.Exceptions;
 using RestSharp;
 using System;
 using System.Collections.Generic;
@@ -30,8 +31,15 @@ namespace PointsManagerWebApi.Controllers
         [Route("get-balance")]
         public ActionResult GetBalance()
         {
-            logger.LogInformation(user.RawTransactionList[0].Payer);
-            return Ok(user.GetAllPayersPointBalance());
+            try
+            {
+                return Ok(user.GetAllPayersPointBalance());
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.ToString());
+                return StatusCode(500);
+            }
         }
 
         [HttpPatch]
@@ -54,9 +62,23 @@ namespace PointsManagerWebApi.Controllers
 
         [HttpPatch]
         [Route("redeem-points")]
-        public ActionResult<JArray> RedeemPoints([FromBody] SpendRequest spendRequest)
+        public ActionResult RedeemPoints([FromBody] SpendRequest spendRequest)
         {
-            return user.RedeemPoints(spendRequest);
+            try
+            {
+                return Ok(user.RedeemPoints(spendRequest));
+            }
+            catch(InvalidPointRedemptionRequestException invalidRedemptionRequestException)
+            {
+                logger.LogError(invalidRedemptionRequestException.ToString());
+                return BadRequest(spendRequest);
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.ToString());
+                return StatusCode(500);
+            }
+
         }
     }
 }
